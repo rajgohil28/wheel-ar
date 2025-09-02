@@ -1,10 +1,13 @@
-import React, { Suspense, useMemo, useRef } from 'react';
+import React, { Suspense, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Environment, useGLTF, Html, Text } from '@react-three/drei';
-import { XR, createXRStore } from '@react-three/xr';
+import { XR, createXRStore, XRHitTest, useXR } from '@react-three/xr';
 import * as THREE from 'three';
 
-const store = createXRStore();
+const store = createXRStore({
+  requiredFeatures: ['hit-test'],
+  optionalFeatures: ['dom-overlay']
+});
 
 const WheelModel = React.forwardRef(function WheelModel({ onWheelChildFound, ...props }, ref) {
   const gltf = useGLTF('./wheel.glb');
@@ -41,24 +44,52 @@ function ARWheel({ predefinedReward }) {
   const wheelChildRef = useRef(); // For rotating just the wheel part
   const spinningRef = useRef(false);
   const targetRotationRef = useRef(0);
+  const [wheelPosition, setWheelPosition] = useState(null);
+  const [isPlaced, setIsPlaced] = useState(false);
+  // Auto-place wheel after timeout if hit test doesn't work
+  React.useEffect(() => {
+    if (!isPlaced) {
+      const autoPlaceTimer = setTimeout(() => {
+        if (!isPlaced) {
+          setWheelPosition(new THREE.Vector3(0, 0, -2));
+          setIsPlaced(true);
+        }
+      }, 3000); // Auto-place after 3 seconds
+      
+      return () => clearTimeout(autoPlaceTimer);
+    }
+  }, [isPlaced]);
+
+  // Hit test callback function
+  const handleHitTestResults = React.useCallback((results, getWorldMatrix) => {
+    if (!isPlaced && results && results.length > 0) {
+      // Get world matrix from first hit result
+      const matrixHelper = new THREE.Matrix4();
+      getWorldMatrix(matrixHelper, results[0]);
+      
+      // Extract position from matrix
+      const position = new THREE.Vector3();
+      position.setFromMatrixPosition(matrixHelper);
+      
+      setWheelPosition(position);
+      setIsPlaced(true);
+    }
+  }, [isPlaced]);
 
   // Callback to receive the wheel child from WheelModel
   const handleWheelChildFound = React.useCallback((wheelChild) => {
     wheelChildRef.current = wheelChild;
-    console.log('Wheel child ref set to:', wheelChild);
   }, []);
 
-  // Place wheel at AR position (5,0,0) when scene ref is available
+  // Place wheel at hit test position when both scene ref and position are available
   React.useEffect(() => {
     const checkAndPlace = () => {
-      if (!sceneRef.current) {
-        console.log('sceneRef.current is still null, retrying...');
+      if (!sceneRef.current || !wheelPosition) {
         setTimeout(checkAndPlace, 100);
         return;
       }
-      console.log('Placing wheel scene at AR position (5,0,0), ref:', sceneRef.current);
-      // Position the entire scene at (5,0,0) for AR
-      sceneRef.current.position.set(0, 0, -2);
+      // Position the entire scene at hit test position
+      sceneRef.current.position.copy(wheelPosition);
       sceneRef.current.quaternion.identity();
       sceneRef.current.scale.set(10, 10, 10);
       sceneRef.current.visible = true;
@@ -66,20 +97,14 @@ function ARWheel({ predefinedReward }) {
     
     // Start checking after a short delay
     setTimeout(checkAndPlace, 100);
-  }, []);
+  }, [wheelPosition]); // Now depends on wheelPosition
 
   const startSpin = () => {
-    console.log('startSpin called');
-    console.log('wheelChildRef.current:', wheelChildRef.current);
-    console.log('spinningRef.current:', spinningRef.current);
-    
     if (spinningRef.current) {
-      console.log('Already spinning, ignoring');
       return;
     }
     
     if (!wheelChildRef.current) {
-      console.log('No wheel child ref, cannot spin');
       return;
     }
     
@@ -89,10 +114,6 @@ function ARWheel({ predefinedReward }) {
     const targetAngle = -(idx * 45) * (Math.PI / 180);
     const currentRotation = wheelChildRef.current.rotation.y || 0;
     targetRotationRef.current = currentRotation + (-(baseSpins * Math.PI * 2) + targetAngle);
-    
-    console.log('Starting spin to reward index:', idx);
-    console.log('Current rotation:', currentRotation);
-    console.log('Target rotation:', targetRotationRef.current);
   };
 
   // Spin animation loop
@@ -105,23 +126,50 @@ function ARWheel({ predefinedReward }) {
         // Better easing with minimum speed
         const step = Math.sign(remaining) * Math.max(0.006, Math.abs(remaining) * 0.048);
         wheelChildRef.current.rotation.y += step;
-        // Only log occasionally to avoid spam
-        if (Math.random() < 0.01) {
-          console.log('Spinning - current:', current, 'target:', targetRotationRef.current, 'remaining:', remaining);
-        }
       } else {
         wheelChildRef.current.rotation.y = targetRotationRef.current;
         spinningRef.current = false;
-        console.log('Spin complete at rotation:', targetRotationRef.current);
       }
     }
   });
 
+
+
+  // Only render wheel and button if position is set
+  if (!wheelPosition) {
+    return (
+      <>
+        <ambientLight intensity={1.2} />
+        <Environment preset="city" />
+        {/* XRHitTest component for floor detection */}
+        <XRHitTest onResults={handleHitTestResults} />
+        {/* Simple placement message */}
+        <Text
+          position={[0, 0, -1]}
+          fontSize={0.06}
+          color="white"
+          anchorX="center"
+          anchorY="middle"
+        >
+          Placing Spin wheel in your space
+        </Text>
+      </>
+    );
+  }
+
   return (
     <>
       <WheelModel ref={sceneRef} onWheelChildFound={handleWheelChildFound} />
-      {/* 3D Spin Button positioned near the wheel in AR space */}
-      <group position={[0, -0.2, -2]} onClick={startSpin} onPointerDown={startSpin}>
+      {/* 3D Spin Button positioned relative to wheel position */}
+      <group 
+        position={[
+          wheelPosition.x, 
+          wheelPosition.y - 0.2, 
+          wheelPosition.z
+        ]} 
+        onClick={startSpin} 
+        onPointerDown={startSpin}
+      >
         <mesh>
           <boxGeometry args={[1, 0.3, 0.1]} />
           <meshStandardMaterial color="#ff6b6b" />
