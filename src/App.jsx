@@ -1,6 +1,6 @@
 import React, { Suspense, useMemo, useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Environment, useGLTF, OrbitControls, Html } from '@react-three/drei';
+import { Environment, useGLTF, Html, Text } from '@react-three/drei';
 import { XR, createXRStore } from '@react-three/xr';
 import * as THREE from 'three';
 
@@ -48,7 +48,7 @@ function ARWheel({ predefinedReward }) {
     console.log('Wheel child ref set to:', wheelChild);
   }, []);
 
-  // Place wheel at origin when scene ref is available
+  // Place wheel at AR position (5,0,0) when scene ref is available
   React.useEffect(() => {
     const checkAndPlace = () => {
       if (!sceneRef.current) {
@@ -56,11 +56,11 @@ function ARWheel({ predefinedReward }) {
         setTimeout(checkAndPlace, 100);
         return;
       }
-      console.log('Placing wheel scene at origin, ref:', sceneRef.current);
-      // Position the entire scene at origin
-      sceneRef.current.position.set(0, 0, 0);
+      console.log('Placing wheel scene at AR position (5,0,0), ref:', sceneRef.current);
+      // Position the entire scene at (5,0,0) for AR
+      sceneRef.current.position.set(0, 0, -2);
       sceneRef.current.quaternion.identity();
-      sceneRef.current.scale.set(1, 1, 1);
+      sceneRef.current.scale.set(10, 10, 10);
       sceneRef.current.visible = true;
     };
     
@@ -85,7 +85,7 @@ function ARWheel({ predefinedReward }) {
     
     spinningRef.current = true;
     const idx = predefinedReward ?? Math.floor(Math.random() * 8);
-    const baseSpins = 5; // Increased from 3 to 5 for longer spin
+    const baseSpins = 10; // Doubled from 5 to 10 for twice as long spin
     const targetAngle = -(idx * 45) * (Math.PI / 180);
     const currentRotation = wheelChildRef.current.rotation.y || 0;
     targetRotationRef.current = currentRotation + (-(baseSpins * Math.PI * 2) + targetAngle);
@@ -120,28 +120,24 @@ function ARWheel({ predefinedReward }) {
   return (
     <>
       <WheelModel ref={sceneRef} onWheelChildFound={handleWheelChildFound} />
-      {/* Overlay HTML Spin Button for desktop preview */}
-      <Html prepend zIndexRange={[100, 0]}>
-        <button
-          onClick={startSpin}
-          style={{
-            position: 'fixed',
-            bottom: 20,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            background: '#ff6b6b',
-            color: '#fff',
-            border: 'none',
-            borderRadius: 8,
-            padding: '12px 20px',
-            fontWeight: 'bold',
-            cursor: 'pointer',
-            zIndex: 1000
-          }}
+      {/* 3D Spin Button positioned near the wheel in AR space */}
+      <group position={[0, -0.2, -2]} onClick={startSpin} onPointerDown={startSpin}>
+        <mesh>
+          <boxGeometry args={[1, 0.3, 0.1]} />
+          <meshStandardMaterial color="#ff6b6b" />
+        </mesh>
+        {/* 3D Text on the button */}
+        <Text
+          position={[0, 0, 0.06]}
+          fontSize={0.08}
+          color="white"
+          anchorX="center"
+          anchorY="middle"
+          font="https://fonts.gstatic.com/s/raleway/v14/1Ptrg8zYS_SKggPNwK4vaqI.woff"
         >
           SPIN
-        </button>
-      </Html>
+        </Text>
+      </group>
       <ambientLight intensity={1.2} />
       <Environment preset="city" />
     </>
@@ -156,13 +152,37 @@ function App() {
     return Number.isFinite(n) && n >= 0 && n <= 7 ? n : null;
   }, []);
 
+  const enterAR = () => {
+    store.enterAR();
+  };
+
   return (
     <div style={{ width: '100%', height: '100%', position: 'fixed', inset: 0 }}>
+      {/* AR Button to start AR session using store.enterAR() */}
+      <button 
+        onClick={enterAR}
+        style={{
+          position: 'absolute',
+          top: 20,
+          left: 20,
+          zIndex: 1000,
+          padding: '12px 20px',
+          background: '#4CAF50',
+          color: 'white',
+          border: 'none',
+          borderRadius: 8,
+          fontWeight: 'bold',
+          cursor: 'pointer'
+        }}
+      >
+        Enter AR
+      </button>
       <Canvas camera={{ position: [0, 1, 2], fov: 60 }}>
-        <Suspense fallback={null}>
-          <ARWheel predefinedReward={rewardParam ?? undefined} />
-        </Suspense>
-        <OrbitControls enableDamping={false} />
+        <XR store={store}>
+          <Suspense fallback={null}>
+            <ARWheel predefinedReward={rewardParam ?? undefined} />
+          </Suspense>
+        </XR>
       </Canvas>
     </div>
   );
