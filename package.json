@@ -1,0 +1,40 @@
+{
+    "browserslist": {
+        "development": [
+            "last 1 chrome version",
+            "last 1 firefox version",
+            "last 1 safari version"
+        ],
+        "production": [
+            ">0.2%",
+            "not dead",
+            "not op_mini all"
+        ]
+    },
+    "dependencies": {
+        "@react-three/drei": "9.122.0",
+        "@react-three/fiber": "8.18.0",
+        "@react-three/xr": "^6.6.25",
+        "react": "^18.2.0",
+        "react-app-rewired": "^2.2.1",
+        "react-dom": "^18.2.0",
+        "react-scripts": "5.0.1",
+        "three": "0.171.0",
+        "zustand": "4.5.7"
+    },
+    "eslintConfig": {
+        "extends": [
+            "react-app"
+        ]
+    },
+    "homepage": ".",
+    "name": "instant-tracking",
+    "private": true,
+    "scripts": {
+        "build": "react-app-rewired build",
+        "eject": "react-scripts eject",
+        "start": "HTTPS=true HOST=0.0.0.0 react-app-rewired start",
+        "test": "react-app-rewired test"
+    },
+    "version": "0.1.0"
+}

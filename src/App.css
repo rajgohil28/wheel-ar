@@ -1,0 +1,728 @@
+/* Model Viewer AR Styles */
+
+model-viewer {
+  --poster-color: transparent;
+  --progress-bar-color: #ff6b6b;
+  --progress-mask: rgba(0, 0, 0, 0.25);
+}
+
+/* Quick AR Interface */
+.quick-ar-interface {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.quick-ar-button {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  padding: 30px 40px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  margin-bottom: 40px;
+  backdrop-filter: blur(10px);
+}
+
+.quick-ar-button:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+  background: rgba(255, 255, 255, 1);
+}
+
+.quick-ar-button:active {
+  transform: translateY(-2px);
+}
+
+.ar-icon {
+  font-size: 48px;
+  line-height: 1;
+}
+
+.ar-text {
+  text-align: left;
+}
+
+.ar-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.ar-subtitle {
+  font-size: 16px;
+  color: #666;
+}
+
+.quick-info {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  text-align: center;
+}
+
+.info-item {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 16px;
+  font-weight: 500;
+  padding: 10px 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 25px;
+  backdrop-filter: blur(5px);
+}
+
+/* AR Status Indicator */
+.ar-status {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2000;
+  background: rgba(76, 175, 80, 0.9);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  animation: arStatusPulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes arStatusPulse {
+  0% {
+    background: rgba(76, 175, 80, 0.9);
+  }
+  100% {
+    background: rgba(76, 175, 80, 0.7);
+  }
+}
+
+.ar-status-text {
+  margin: 0;
+}
+
+/* Floor Tracking Interface */
+.floor-tracking {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1500;
+  text-align: center;
+  pointer-events: none;
+}
+
+.tracking-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.scanning-icon {
+  font-size: 48px;
+  animation: scanPulse 2s ease-in-out infinite;
+}
+
+@keyframes scanPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.7;
+  }
+}
+
+/* Scanning Progress Ring */
+.scanning-progress {
+  position: relative;
+  width: 60px;
+  height: 60px;
+}
+
+.progress-ring {
+  width: 60px;
+  height: 60px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  position: relative;
+  animation: ringRotate 2s linear infinite;
+}
+
+.progress-fill {
+  position: absolute;
+  top: -3px;
+  left: -3px;
+  width: 60px;
+  height: 60px;
+  border: 3px solid transparent;
+  border-top: 3px solid #00ff88;
+  border-radius: 50%;
+  animation: progressFill 2s ease-in-out;
+}
+
+@keyframes ringRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes progressFill {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.tracking-text {
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.6);
+  padding: 8px 16px;
+  border-radius: 20px;
+  backdrop-filter: blur(5px);
+}
+
+.tracking-hint {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 6px 12px;
+  border-radius: 15px;
+  backdrop-filter: blur(3px);
+}
+
+/* Floor Marker */
+.floor-marker {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto;
+}
+
+.marker-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 16px;
+  height: 16px;
+}
+
+.marker-dot {
+  width: 16px;
+  height: 16px;
+  background: #00ff88;
+  border-radius: 50%;
+  box-shadow: 0 0 20px rgba(0, 255, 136, 0.8);
+  animation: markerPulse 1.5s ease-in-out infinite;
+}
+
+.marker-pulse {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  background: rgba(0, 255, 136, 0.3);
+  border-radius: 50%;
+  animation: markerRipple 2s ease-out infinite;
+}
+
+@keyframes markerPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.8;
+  }
+}
+
+@keyframes markerRipple {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+.marker-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.ring-outer, .ring-middle, .ring-inner {
+  position: absolute;
+  border: 2px solid #00ff88;
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.ring-outer {
+  width: 100px;
+  height: 100px;
+  opacity: 0.4;
+  animation: ringFloat 3s ease-in-out infinite;
+}
+
+.ring-middle {
+  width: 70px;
+  height: 70px;
+  opacity: 0.6;
+  animation: ringFloat 3s ease-in-out infinite 0.5s;
+}
+
+.ring-inner {
+  width: 40px;
+  height: 40px;
+  opacity: 0.8;
+  animation: ringFloat 3s ease-in-out infinite 1s;
+}
+
+@keyframes ringFloat {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.4;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+.marker-crosshair {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.crosshair-h, .crosshair-v {
+  position: absolute;
+  background: #00ff88;
+  opacity: 0.6;
+}
+
+.crosshair-h {
+  width: 60px;
+  height: 2px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.crosshair-v {
+  width: 2px;
+  height: 60px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* AR Target Reticle (kept for backward compatibility) */
+.target-reticle {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  margin: 0 auto;
+}
+
+.reticle-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 8px;
+  background: #00ff88;
+  border-radius: 50%;
+  box-shadow: 0 0 20px rgba(0, 255, 136, 0.8);
+  animation: reticlePulse 1.5s ease-in-out infinite;
+}
+
+.reticle-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60px;
+  height: 60px;
+  border: 2px solid #00ff88;
+  border-radius: 50%;
+  opacity: 0.6;
+  animation: reticleRing 2s linear infinite;
+}
+
+@keyframes reticlePulse {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.2);
+    opacity: 0.8;
+  }
+}
+
+@keyframes reticleRing {
+  0% {
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.2);
+    opacity: 0;
+  }
+}
+
+/* Reticle Corners */
+.reticle-corners {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.corner {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 3px solid #00ff88;
+}
+
+.corner-tl {
+  top: 0;
+  left: 0;
+  border-right: none;
+  border-bottom: none;
+}
+
+.corner-tr {
+  top: 0;
+  right: 0;
+  border-left: none;
+  border-bottom: none;
+}
+
+.corner-bl {
+  bottom: 0;
+  left: 0;
+  border-right: none;
+  border-top: none;
+}
+
+.corner-br {
+  bottom: 0;
+  right: 0;
+  border-left: none;
+  border-top: none;
+}
+
+.placed-icon {
+  font-size: 48px;
+  animation: placedBounce 0.6s ease-out;
+}
+
+@keyframes placedBounce {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Floor Grid Overlay */
+.floor-grid {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1200;
+  opacity: 0.3;
+}
+
+.grid-lines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.grid-lines.horizontal {
+  background-image: linear-gradient(rgba(0, 255, 136, 0.3) 1px, transparent 1px);
+  background-size: 100% 40px;
+}
+
+.grid-lines.vertical {
+  background-image: linear-gradient(90deg, rgba(0, 255, 136, 0.3) 1px, transparent 1px);
+  background-size: 40px 100%;
+}
+
+/* Drop Button */
+.drop-button {
+  position: fixed;
+  bottom: 120px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2000;
+  background: linear-gradient(135deg, #00ff88, #00cc6a);
+  color: white;
+  border: none;
+  border-radius: 25px;
+  padding: 16px 32px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(0, 255, 136, 0.4);
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  animation: dropButtonEntrance 0.5s ease-out;
+}
+
+.drop-button:hover {
+  transform: translateX(-50%) translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 255, 136, 0.6);
+  background: linear-gradient(135deg, #00ff88, #00e676);
+}
+
+.drop-button:active {
+  transform: translateX(-50%) translateY(-1px);
+}
+
+@keyframes dropButtonEntrance {
+  0% {
+    transform: translateX(-50%) translateY(100px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+}
+
+/* AR Button Styling */
+.ar-button {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 25px;
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+
+.ar-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.ar-button:active {
+  transform: translateY(0);
+}
+
+/* Progress Bar Styling */
+.progress-bar {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 200px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.update-bar {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, #ff6b6b, #feca57);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .ar-button {
+    bottom: 15px;
+    right: 15px;
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+  
+  .quick-ar-button {
+    padding: 25px 30px;
+    margin-bottom: 30px;
+  }
+  
+  .ar-icon {
+    font-size: 40px;
+  }
+  
+  .ar-title {
+    font-size: 20px;
+  }
+  
+  .ar-subtitle {
+    font-size: 14px;
+  }
+  
+  .info-item {
+    font-size: 14px;
+    padding: 8px 16px;
+  }
+  
+  /* Mobile Floor Tracking */
+  .target-reticle {
+    width: 70px;
+    height: 70px;
+  }
+  
+  .reticle-ring {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .scanning-icon {
+    font-size: 40px;
+  }
+  
+  .placed-icon {
+    font-size: 40px;
+  }
+  
+  .tracking-text {
+    font-size: 16px;
+    padding: 6px 12px;
+  }
+  
+  .tracking-hint {
+    font-size: 12px;
+    padding: 4px 8px;
+  }
+  
+  .floor-marker {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .ring-outer {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .ring-middle {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .ring-inner {
+    width: 35px;
+    height: 35px;
+  }
+  
+  .crosshair-h {
+    width: 50px;
+  }
+  
+  .crosshair-v {
+    height: 50px;
+  }
+  
+  .drop-button {
+    bottom: 100px;
+    padding: 14px 28px;
+    font-size: 16px;
+  }
+  
+  .grid-lines.horizontal {
+    background-size: 100% 30px;
+  }
+  
+  .grid-lines.vertical {
+    background-size: 30px 100%;
+  }
+}
+
+/* Loading Overlay */
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 18px;
+  z-index: 2000;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top: 4px solid #ff6b6b;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

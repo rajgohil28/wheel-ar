@@ -1,0 +1,150 @@
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+/* AR.js specific styles */
+a-scene {
+  width: 100%;
+  height: 100%;
+}
+
+#ar-instructions {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  z-index: 1000;
+  font-family: sans-serif;
+  font-size: 18px;
+  max-width: 300px;
+}
+
+#spin-button {
+  position: absolute;
+  bottom: 100px;
+  width: 120px;
+  left: calc(50% - 60px);
+  z-index: 1000;
+  background-color: #ff6b6b;
+  color: white;
+  text-align: center;
+  font-family: sans-serif;
+  font-weight: bold;
+  padding: 15px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+}
+
+#spin-button:hover {
+  background-color: #ff5252;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+#reset-button {
+  position: absolute;
+  bottom: 100px;
+  width: 120px;
+  left: calc(50% - 60px);
+  z-index: 1000;
+  background-color: #28a745;
+  color: white;
+  text-align: center;
+  font-family: sans-serif;
+  font-weight: bold;
+  padding: 15px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+}
+
+#reset-button:hover {
+  background-color: #218838;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+#reward-display {
+  position: absolute;
+  top: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  background: linear-gradient(135deg, #4ecdc4, #44a08d);
+  border-radius: 15px;
+  padding: 20px 30px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  animation: rewardPulse 2s ease-in-out infinite alternate;
+}
+
+#reward-text {
+  color: white;
+  text-align: center;
+  font-family: sans-serif;
+  font-weight: bold;
+  font-size: 18px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  margin: 0;
+  min-width: 200px;
+  max-width: 300px;
+  word-wrap: break-word;
+}
+
+@keyframes rewardPulse {
+  0% {
+    transform: translateX(-50%) scale(1);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  }
+  100% {
+    transform: translateX(-50%) scale(1.05);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
+  }
+}
+
+#error-display {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2000;
+  background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+  border-radius: 15px;
+  padding: 30px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  text-align: center;
+  max-width: 350px;
+}
+
+#error-text {
+  color: white;
+  font-family: sans-serif;
+  font-weight: bold;
+  font-size: 16px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  margin-bottom: 10px;
+}
+
+#error-example {
+  color: rgba(255, 255, 255, 0.9);
+  font-family: monospace;
+  font-size: 14px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 8px 12px;
+  border-radius: 5px;
+  margin-top: 10px;
+}
+
+
