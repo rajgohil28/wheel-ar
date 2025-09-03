@@ -1,7 +1,7 @@
 import React, { Suspense, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Environment, useGLTF, Html, Text } from '@react-three/drei';
-import { XR, createXRStore, XRHitTest, useXR } from '@react-three/xr';
+import { XR, createXRStore, XRHitTest, useXR, ShowIfSessionVisible } from '@react-three/xr';
 import * as THREE from 'three';
 
 const store = createXRStore({
@@ -48,6 +48,7 @@ function ARWheel({ predefinedReward }) {
   const [isPlaced, setIsPlaced] = useState(false);
   const [currentReward, setCurrentReward] = useState(null);
   const [showReward, setShowReward] = useState(false);
+  const [hasSpun, setHasSpun] = useState(false);
 
   // Define the 8 rewards based on the wheel segments (0-7, counter-clockwise from top)
   // The pointer is at the top, so index 0 is the segment the pointer points to
@@ -107,7 +108,7 @@ function ARWheel({ predefinedReward }) {
       // Position the entire scene at hit test position
       sceneRef.current.position.copy(wheelPosition);
       sceneRef.current.quaternion.identity();
-      sceneRef.current.scale.set(10, 10, 10);
+      sceneRef.current.scale.set(8, 8, 8);
       sceneRef.current.visible = true;
     };
     
@@ -116,7 +117,7 @@ function ARWheel({ predefinedReward }) {
   }, [wheelPosition]); // Now depends on wheelPosition
 
   const startSpin = () => {
-    if (spinningRef.current) {
+    if (spinningRef.current || hasSpun) {
       return;
     }
     
@@ -129,6 +130,7 @@ function ARWheel({ predefinedReward }) {
     setCurrentReward(null);
     
     spinningRef.current = true;
+    setHasSpun(true);
     const idx = predefinedReward ?? Math.floor(Math.random() * 8);
     const baseSpins = 10; // Doubled from 5 to 10 for twice as long spin
     
@@ -223,7 +225,7 @@ function ARWheel({ predefinedReward }) {
           </Text>
           <Text
             position={[0, -0.06, 0.036]}
-            fontSize={0.026}
+            fontSize={0.04}
             color="#333333"
             anchorX="center"
             anchorY="middle"
@@ -252,32 +254,34 @@ function ARWheel({ predefinedReward }) {
         </group>
       )}
       
-      {/* 3D Spin Button positioned relative to wheel position */}
-      <group 
-        position={[
-          wheelPosition.x, 
-          wheelPosition.y - 0.2, 
-          wheelPosition.z
-        ]} 
-        onClick={startSpin} 
-        onPointerDown={startSpin}
-      >
-        <mesh>
-          <boxGeometry args={[1, 0.3, 0.1]} />
-          <meshStandardMaterial color="#ff6b6b" />
-        </mesh>
-        {/* 3D Text on the button */}
-        <Text
-          position={[0, 0, 0.06]}
-          fontSize={0.08}
-          color="white"
-          anchorX="center"
-          anchorY="middle"
-          font="https://fonts.gstatic.com/s/raleway/v14/1Ptrg8zYS_SKggPNwK4vaqI.woff"
+      {/* 3D Spin Button positioned relative to wheel position (only show if not spun) */}
+      {!hasSpun && (
+        <group 
+          position={[
+            wheelPosition.x, 
+            wheelPosition.y - 0.05, 
+            wheelPosition.z + 0.2
+          ]} 
+          onClick={startSpin} 
+          onPointerDown={startSpin}
         >
-          SPIN
-        </Text>
-      </group>
+          <mesh>
+            <boxGeometry args={[1, 0.3, 0.1]} />
+            <meshStandardMaterial color="#ff6b6b" />
+          </mesh>
+          {/* 3D Text on the button */}
+          <Text
+            position={[0, 0, 0.06]}
+            fontSize={0.08}
+            color="white"
+            anchorX="center"
+            anchorY="middle"
+            font="https://fonts.gstatic.com/s/raleway/v14/1Ptrg8zYS_SKggPNwK4vaqI.woff"
+          >
+            SPIN
+          </Text>
+        </group>
+      )}
       <ambientLight intensity={1.2} />
       <Environment preset="city" />
     </>
@@ -285,6 +289,8 @@ function ARWheel({ predefinedReward }) {
 }
 
 function App() {
+  const [isArButtonTapped, setIsArButtonTapped] = useState(false);
+  
   const rewardParam = useMemo(() => {
     const p = new URLSearchParams(window.location.search).get('rewardId');
     if (p === null) return null;
@@ -293,34 +299,49 @@ function App() {
   }, []);
 
   const enterAR = () => {
+    setIsArButtonTapped(true);
     store.enterAR();
   };
 
   return (
     <div style={{ width: '100%', height: '100%', position: 'fixed', inset: 0 }}>
-      {/* AR Button to start AR session using store.enterAR() */}
-      <button 
-        onClick={enterAR}
+      {/* Centered AR button overlay, keep wheel visible underneath */}
+      <div
         style={{
           position: 'absolute',
-          top: 20,
-          left: 20,
+          inset: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
           zIndex: 1000,
-          padding: '12px 20px',
-          background: '#4CAF50',
-          color: 'white',
-          border: 'none',
-          borderRadius: 8,
-          fontWeight: 'bold',
-          cursor: 'pointer'
+          pointerEvents: 'none'
         }}
       >
-        Enter AR
-      </button>
+        <button
+          onClick={enterAR}
+          style={{
+            pointerEvents: 'auto',
+            padding: '18px 48px',
+            background: 'linear-gradient(45deg, #4CAF50, #45a049)',
+            color: '#fff',
+            border: 'none',
+            borderRadius: 28,
+            fontWeight: 700,
+            fontSize: 22,
+            cursor: 'pointer',
+            boxShadow: '0 10px 30px rgba(76,175,80,0.45)'
+          }}
+        >
+          Enter AR
+        </button>
+      </div>
+
       <Canvas camera={{ position: [0, 1, 2], fov: 60 }}>
         <XR store={store}>
           <Suspense fallback={null}>
-            <ARWheel predefinedReward={rewardParam ?? undefined} />
+            {isArButtonTapped && (
+              <ARWheel predefinedReward={rewardParam ?? undefined} />
+            )}
           </Suspense>
         </XR>
       </Canvas>
