@@ -46,6 +46,22 @@ function ARWheel({ predefinedReward }) {
   const targetRotationRef = useRef(0);
   const [wheelPosition, setWheelPosition] = useState(null);
   const [isPlaced, setIsPlaced] = useState(false);
+  const [currentReward, setCurrentReward] = useState(null);
+  const [showReward, setShowReward] = useState(false);
+
+  // Define the 8 rewards based on the wheel segments (0-7, counter-clockwise from top)
+  // The pointer is at the top, so index 0 is the segment the pointer points to
+  // When wheel rotates counter-clockwise, the mapping changes
+  const rewards = [
+    "Gracias por participar",           // 0 - Top (pink) - pointer points here
+    "Giro Extra",                      // 1 - Teal (top-left) - counter-clockwise from top
+    "Kit de productos Softys",         // 2 - Pink (left)
+    "Tarjeta de regalo $200",          // 3 - Orange (bottom-left)
+    "Kit de productos Softys",         // 4 - Teal (bottom)
+    "Giro Extra",                      // 5 - Pink (bottom-right)
+    "Gracias por participar",          // 6 - Teal (right)
+    "Tarjeta de regalo $500"           // 7 - Orange (top-right)
+  ];
   // Auto-place wheel after timeout if hit test doesn't work
   React.useEffect(() => {
     if (!isPlaced) {
@@ -108,12 +124,25 @@ function ARWheel({ predefinedReward }) {
       return;
     }
     
+    // Hide previous reward if shown
+    setShowReward(false);
+    setCurrentReward(null);
+    
     spinningRef.current = true;
     const idx = predefinedReward ?? Math.floor(Math.random() * 8);
     const baseSpins = 10; // Doubled from 5 to 10 for twice as long spin
+    
+    // Calculate the correct target angle for the reward
+    // Each segment is 45 degrees, and we need to account for counter-clockwise rotation
     const targetAngle = -(idx * 45) * (Math.PI / 180);
     const currentRotation = wheelChildRef.current.rotation.y || 0;
-    targetRotationRef.current = currentRotation + (-(baseSpins * Math.PI * 2) + targetAngle);
+    targetRotationRef.current = currentRotation + (baseSpins * Math.PI * 2) + targetAngle;
+    
+    // Set the reward that will be shown after spin
+    setCurrentReward({
+      index: idx,
+      text: rewards[idx]
+    });
   };
 
   // Spin animation loop
@@ -128,7 +157,13 @@ function ARWheel({ predefinedReward }) {
         wheelChildRef.current.rotation.y += step;
       } else {
         wheelChildRef.current.rotation.y = targetRotationRef.current;
-        spinningRef.current = false;
+        
+        // Show reward after spin completes
+        setTimeout(() => {
+          setShowReward(true);
+          // Reset spinning state to allow another spin
+          spinningRef.current = false;
+        }, 500); // Small delay for dramatic effect
       }
     }
   });
@@ -160,6 +195,63 @@ function ARWheel({ predefinedReward }) {
   return (
     <>
       <WheelModel ref={sceneRef} onWheelChildFound={handleWheelChildFound} />
+      
+      {/* Reward Display - positioned above the wheel */}
+      {showReward && currentReward && (
+        <group position={[wheelPosition.x, wheelPosition.y + 1.8, wheelPosition.z]}>
+          {/* Reward background */}
+          <mesh>
+            <boxGeometry args={[1.2, 0.48, 0.06]} />
+            <meshStandardMaterial color="#FFD700" />
+          </mesh>
+          {/* Reward border */}
+          <mesh position={[0, 0, 0.006]}>
+            <boxGeometry args={[1.26, 0.54, 0.03]} />
+            <meshStandardMaterial color="#FF6B35" />
+          </mesh>
+          {/* Reward text */}
+          <Text
+            position={[0, 0.06, 0.036]}
+            fontSize={0.032}
+            color="#333333"
+            anchorX="center"
+            anchorY="middle"
+            maxWidth={1.15}
+            font="https://fonts.gstatic.com/s/raleway/v14/1Ptrg8zYS_SKggPNwK4vaqI.woff"
+          >
+            🎉 ¡Felicitaciones! 🎉
+          </Text>
+          <Text
+            position={[0, -0.06, 0.036]}
+            fontSize={0.026}
+            color="#333333"
+            anchorX="center"
+            anchorY="middle"
+            maxWidth={1.15}
+            font="https://fonts.gstatic.com/s/raleway/v14/1Ptrg8zYS_SKggPNwK4vaqI.woff"
+          >
+            {currentReward.text}
+          </Text>
+          {/* Close button */}
+          <mesh 
+            position={[0.54, 0.18, 0.036]}
+            onClick={() => setShowReward(false)}
+          >
+            <boxGeometry args={[0.12, 0.12, 0.03]} />
+            <meshStandardMaterial color="#ff4444" />
+          </mesh>
+          <Text
+            position={[0.54, 0.18, 0.048]}
+            fontSize={0.024}
+            color="white"
+            anchorX="center"
+            anchorY="middle"
+          >
+            ✕
+          </Text>
+        </group>
+      )}
+      
       {/* 3D Spin Button positioned relative to wheel position */}
       <group 
         position={[
