@@ -10,7 +10,7 @@ const store = createXRStore({
 });
 
 const WheelModel = React.forwardRef(function WheelModel({ onWheelChildFound, ...props }, ref) {
-  const gltf = useGLTF('./wheel.glb');
+  const gltf = useGLTF('./wheel_new.glb');
   
   // Find the wheel child and pass it via callback, but keep scene ref for positioning
   React.useEffect(() => {
@@ -20,9 +20,9 @@ const WheelModel = React.forwardRef(function WheelModel({ onWheelChildFound, ...
       
       // Try to find the wheel child by name
       let wheelChild = gltf.scene.getObjectByName('wheel') || 
-                      gltf.scene.getObjectByName('Wheel') ||
+                      gltf.scene.getObjectByName('wheel') ||
                       gltf.scene.children.find(child => 
-                        child.name.toLowerCase().includes('wheel')
+                        child.name.toLowerCase().includes('wheel001')
                       );
       
       if (wheelChild) {
@@ -68,7 +68,7 @@ function ARWheel({ predefinedReward }) {
     if (!isPlaced) {
       const autoPlaceTimer = setTimeout(() => {
         if (!isPlaced) {
-          setWheelPosition(new THREE.Vector3(0, 0, -2));
+          setWheelPosition(new THREE.Vector3(0, -0.3, -2));
           setIsPlaced(true);
         }
       }, 3000); // Auto-place after 3 seconds
@@ -108,7 +108,7 @@ function ARWheel({ predefinedReward }) {
       // Position the entire scene at hit test position
       sceneRef.current.position.copy(wheelPosition);
       sceneRef.current.quaternion.identity();
-      sceneRef.current.scale.set(8, 8, 8);
+      sceneRef.current.scale.set(10, 10, 10);
       sceneRef.current.visible = true;
     };
     
@@ -210,7 +210,7 @@ function ARWheel({ predefinedReward }) {
       
       {/* Reward Display - positioned above the wheel */}
       {showReward && currentReward && (
-        <group position={[wheelPosition.x, wheelPosition.y + 1.4, wheelPosition.z]}>
+        <group position={[wheelPosition.x, wheelPosition.y + 2.2, wheelPosition.z]}>
           {/* Reward background */}
           <mesh>
             <boxGeometry args={[1.2, 0.48, 0.06]} />
